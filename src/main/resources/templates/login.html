@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>Backbase - Login</title>
+    <link th:rel="stylesheet" th:href="@{assets/css/login.css}"/>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+</head>
+<body>
+
+<div class="container">
+    <form class="form-signin">
+        <h3 class="form-signin-heading" th:text="Welcome"></h3>
+        <br/>
+
+        <label>Username</label>
+        <input type="text" id="user_name" name="user_name" placeholder="User Name"
+               class="form-control"/> <br/>
+        <label>Password</label>
+        <input type="password" th:placeholder="Password"
+               id="password" name="password" class="form-control"/> <br/>
+
+        <button
+                type="button"
+                class="btn btn-lg btn-primary btn-block"
+                name="login"
+                onclick="signin()"
+        >
+            Login
+        </button>
+    </form>
+</div>
+</div>
+
+<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+<script>
+    function signin() {
+        console.log("signin");
+        var usernameField = document.getElementById("user_name");
+        var passwordField = document.getElementById("password");
+        console.log(usernameField.value , passwordField.value);
+
+        $.post({
+            url: "/auth/login",
+            data: JSON.stringify({
+                username: usernameField.value,
+                password: passwordField.value
+            }),
+            contentType: "application/json",
+            complete: function (response) {
+                localStorage.setItem(
+                    'userToken',
+                    response.getResponseHeader('token')
+                    );
+                localStorage.setItem(
+                    'username',
+                     usernameField.value);
+
+                window.location.href = '/movies';
+            },
+        });
+
+    }
+
+
+
+
+</script>
+</body>
+</html>
+

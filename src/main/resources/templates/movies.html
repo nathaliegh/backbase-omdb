@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>BackBase</title>
+    <link th:rel="stylesheet" th:href="@{assets/css/style.css}"/>
+    <link th:rel="stylesheet" th:href="@{assets/datatable/datatables.css}"/>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" th:href="@{webjars/font-awesome/5.15.4/css/all.css} "/>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">Backbase - Movie</a>
+    </div>
+</nav>
+<div id="card_username">
+    <nav class="card bg-light static-top">
+        <div class="card-header d-flex">
+            <h6 class="ml-5 mr-auto">Welcome <strong id="cardUsername"></strong>!</h6>
+
+            <button
+                    type="button"
+                    class="btn btn-sm btn-primary float-right"
+                    name="logout"
+                    onclick="logout()"
+             >
+                <span class="fa fa-power-off"></span>
+                Logout
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mt-5 mb-5">
+                <h3>Movies win &#10092;Best Picture&#10093; Awards</h3>
+                <table id="movieArray" class="table table-bordered table-hover" style="width: 100%">
+                    <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>ImdbID</th>
+                        <th>Title</th>
+                        <th>Year</th>
+                        <th>Genre</th>
+                        <th>Awards</th>
+                        <th>ImdbRating</th>
+                        <th>ImdbVotes</th>
+                        <th>BoxOffice</th>
+                        <th>Rating</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{assets/datatable/datatables.js}"></script>
+<script th:src="@{assets/datatable/datatables.editor.min.js}"></script>
+
+
+<script>
+    var movieTable;
+    setUsername();
+    setMovieTable();
+
+
+    function setUsername() {
+       document.getElementById('cardUsername').innerHTML = localStorage.getItem('username');
+    }
+
+    function setMovieTable() {
+        movieTable = $('#movieArray').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "/movies/list",
+                "type": "POST",
+                "dataType": "json",
+                "contentType": "application/json",
+                "data": function (d) {
+                    return JSON.stringify(d);
+                },
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem('userToken')}`
+                }
+            },
+            "columns": [
+                {
+                    data: "image",
+                    render: function (data, _type, rowData, _meta) {
+                        var imgsrc = 'data:image/png;base64,' + data;
+                        var { title } = rowData;
+                        return `
+                            <img
+                                src="${imgsrc}"
+                                alt="${title}"
+                                title="${title}"
+                                width="100"
+                                height="100"
+                            />`;
+                    }
+                },
+                {data: "imdbId"},
+                {data: "title"},
+                {data: "year"},
+                {data: "genre"},
+                {data: "awards"},
+                {data: "imdbRating"},
+                {data: "imdbVotes", render: $.fn.dataTable.render.number(',', '.', 0, '')},
+                {data: "boxOffice", render: $.fn.dataTable.render.number(',', '.', 0, '$')},
+                {
+                    data: "rating",
+                    render: function (_data, _type, rowData, _meta) {
+                        var ratingDiv = '<div class="rating">';
+                        for (var i = 5; i >= 1; i--) {
+                            var {imdbId, rating} = rowData;
+                            var inputId = `${imdbId}-${i}`;
+                            var inputChecked = rating == i;
+                            ratingDiv += `
+                                <input
+                                    type="radio"
+                                    name="${imdbId}"
+                                    value="${i}"
+                                    id="${inputId}"
+                                    ${inputChecked ? ' checked' : ''}
+                                    onclick="rate(this.value,this.name)"
+                                />
+                                <label for="${inputId}">
+                                    ☆
+                                </label>`;
+                        }
+                        ratingDiv += '</div>';
+                        return ratingDiv;
+                    }
+                }
+            ]
+        });
+        movieTable
+            .order([8, 'desc'])
+            .draw();
+    }
+
+    function rate(rate, imdbId) {
+        $.post({
+            url: "/movies/updatebyImdbId",
+            data: {
+                imdbId: imdbId,
+                rate: rate
+            },
+            headers: {
+                    authorization: `Bearer ${localStorage.getItem('userToken')}`
+            }
+        }).done(function () {
+            movieTable.draw();
+        });
+    }
+
+    function logout() {
+       localStorage.removeItem('userToken');
+       localStorage.removeItem('username');
+       window.location.href = '/login';
+    }
+
+</script>
+
+</body>
+</html>
