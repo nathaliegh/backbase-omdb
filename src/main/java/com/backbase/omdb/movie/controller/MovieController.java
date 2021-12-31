@@ -120,7 +120,7 @@ public class MovieController {
     })
     @PostMapping("/updatebyImdbId")
     @ResponseBody
-    public void updateMovieByImdb(@ApiParam(name = "IMDBID",
+    public void updateMovieByImdb(@ApiParam(name = "imdbId",
                                             type = "String",
                                             value = "International Movie Database ID",
                                             example = "tt0120338",
