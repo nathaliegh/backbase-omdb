@@ -28,9 +28,9 @@ public class AuthService {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
         } catch (DisabledException e) {
-            throw new DisabledException("errors.account.disabled");
+            throw new DisabledException("Your account is deactivated");
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("errors.account.invalid.credentials");
+            throw new BadCredentialsException("The username or password that you entered is not valid. Try typing it again.");
         }
     }
 }
