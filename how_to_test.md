@@ -10,7 +10,7 @@ check APIs documentation with [swagger](http://localhost:8080/swagger-ui/index.h
 
 ## UI
 1. go to [login page](http://localhost:8080/login) and login with any username and password (if username isn't exist, a new user will be created with the selected username)
-2. you will be redirected to a page that contains a table with only the movies that won the <<Best Picture>> award.
+2. you will be redirected to a page that contains a table with only the movies that won the **Best Picture** award.
 3. you will be able to search a movie by title.
 4. you will be able to rate a movie in the list (rates are saved in the DB with the user you logged in with)
 
